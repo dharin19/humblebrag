@@ -6,10 +6,26 @@ from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 from collections import defaultdict
 import heapq
+from openai import AsyncOpenAI
+import os
+import asyncio
+           
 
 app = Flask(__name__)
 
-@app.route('/upload', methods=['POST'])
+
+async def get_completion(message):
+    client = AsyncOpenAI()
+
+    completion = await client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{f"role": "user", "content": f"{message}"}]
+    )
+    return completion.choices[0].message.content
+
+
+
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -23,10 +39,10 @@ def upload_file():
         file.save(temp_path)
 
         # Process the image
+        newText = detect_text2(temp_path)
         category_confidence = detect_text(temp_path)
 
-        # Clean up the temporary file
-        os.remove(temp_path)
+        
 
         # Calculate the total confidence to normalize the scores
         total_confidence = sum(category_confidence.values())
@@ -43,9 +59,14 @@ def upload_file():
             corresponding_percentages[i] = val - 2
             i = i + 1
 
+       
+        #print(newText)
+        completion = asyncio.run(get_completion("Give an example of a response I could text my colleague based on this: " + str(newText)))
+
         return jsonify({
             'TopCategories': top_categories_names,
-            'CorrespondingPercentages': corresponding_percentages
+            'CorrespondingPercentages': corresponding_percentages,
+            'Response' : completion
         })
 
 
@@ -81,6 +102,26 @@ def detect_text(path):
         raise Exception(f"{response.error.message}\nFor more info on error messages, check: https://cloud.google.com/apis/design/errors")
 
     return category_confidence
+
+
+def detect_text2(path):
+    """Detects text in the file and categorizes."""
+    credential_path = "/Users/Harshith/Desktop/General Coding/humblebrag/humblebrag/credentials.json"
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
+    client = vision.ImageAnnotatorClient()
+
+    with io.open(path, 'rb') as image_file:
+        content = image_file.read()
+
+    image = vision.Image(content=content)
+    response = client.text_detection(image=image)
+    texts = response.text_annotations
+
+    if texts:
+        detected_text = texts[0].description
+        return detected_text
+
+    return "No text"
 
 def topics():
     return [
