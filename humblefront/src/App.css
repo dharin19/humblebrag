@@ -81,19 +81,17 @@
 }
 
 .blackUploadBox {
-
-  margin-top: 10px;
+  position: fixed; /* Fixed position relative to the viewport */
+  bottom: 50px; /* Distance from the bottom of the viewport */
   border-radius: 20px;
-  justify-items: center;
-  align-items: center;
-  align-content: center;
+  justify-content: center; /* Correct property for Flexbox */
+  align-items: center; /* Centers items vertically within the container */
   background-color: #000000;
   text-align: center;
-  margin-left: 30%;
+  left: 41%; /* Center horizontally */
+  transform: translateX(-50%); /* Offset the element to the left by half of its width */
   width: 250px;
   height: 60px;
-
-
 }
 
 .greyUploadBox {
@@ -204,6 +202,15 @@
 }
 
 .parsedTextTitleText {
+  appearance: none;
+  background: none;
+  color: inherit; /* or set a specific color */
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit; /* or set the font styles you want */
+  cursor: pointer;
+  outline: inherit; /* or set to 'none' if you want to remove the focus outline */
   margin-top: 5px;
   padding-top: 18px;
   align-self: center;
