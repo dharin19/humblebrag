@@ -144,7 +144,7 @@ function App() {
       <div className="parsedTextDisplay">
         <center>
           <div className="parsedTextTitle">
-            <button onClick={handleFileUpload} className="parsedTextTitleText">Parsed Text</button>
+            <button onClick={handleFileUpload} className="parsedTextTitleText">Generate Response</button>
           </div>
           <div className="parsedTextContent">
             <p>{displayText}</p>
